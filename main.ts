@@ -14,19 +14,21 @@ function blinkTarget () {
     }
 }
 function randomizeTarget () {
-    target_x = randint(0, 4)
-    target_y = randint(0, 4)
-    if (target_x == 5 && target_y == 5) {
+    target_x = Math.abs(randint(0, 4))
+    target_y = Math.abs(randint(0, 4))
+    if (target_x == 2 && target_y == 2) {
         randomizeTarget()
     }
 }
 function check_you_win () {
-    if (control.millis() - last_movement >= 5000) {
-        basic.showIcon(IconNames.SmallDiamond)
-        basic.showIcon(IconNames.Diamond)
-        basic.showIcon(IconNames.Chessboard)
-        basic.showString("You win LEVEL " + sensitivity + "!")
-        randomizeTarget()
+    if (x == target_x && y == target_y) {
+        if (control.millis() - last_movement > 5000) {
+            basic.showIcon(IconNames.SmallDiamond)
+            basic.showIcon(IconNames.Diamond)
+            basic.showIcon(IconNames.Chessboard)
+            basic.showString("You win LEVEL " + sensitivity + "!")
+            randomizeTarget()
+        }
     }
 }
 input.onButtonPressed(Button.B, function () {
@@ -45,9 +47,11 @@ function set_sensitivity (increase: boolean) {
 }
 let old_y = 0
 let old_x = 0
+let temp_y = 0
+let temp_x = 0
+let last_movement = 0
 let y = 0
 let x = 0
-let last_movement = 0
 let target_y = 0
 let target_x = 0
 let TargetOn = 0
@@ -57,29 +61,29 @@ sensitivity = 5
 randomizeTarget()
 blinktMillis = control.millis()
 basic.forever(function () {
-    x = pins.map(
+    temp_x = pins.map(
     Math.constrain(input.acceleration(Dimension.X), -1023 / sensitivity, 1023 / sensitivity),
     -1023 / sensitivity,
     1023 / sensitivity,
     0,
     4
     )
-    y = pins.map(
+    x = temp_x - temp_x % 1
+    temp_y = pins.map(
     Math.constrain(input.acceleration(Dimension.Y), -1023 / sensitivity, 1023 / sensitivity),
     -1023 / sensitivity,
     1023 / sensitivity,
     0,
     4
     )
-    if (x != old_x || y != old_y) {
-        led.unplot(old_x, old_y)
-        old_x = x
-        old_y = y
-        last_movement = control.millis()
+    y = temp_y - temp_y % 1
+    if (x == old_x && y == old_y) {
+        check_you_win()
     } else {
-        if (x == target_x && y == target_y) {
-            check_you_win()
-        }
+        led.unplot(old_x, old_y)
+        old_x = Math.abs(x)
+        old_y = Math.abs(y)
+        last_movement = control.millis()
     }
     led.plot(x, y)
     blinkTarget()

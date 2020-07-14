@@ -20,7 +20,7 @@ let old_x = 0
 let y = 0
 let x = 0
 let sensitivity = 0
-sensitivity = 1
+sensitivity = 5
 basic.forever(function () {
     x = pins.map(
     Math.constrain(input.acceleration(Dimension.X), -1023 / sensitivity, 1023 / sensitivity),
